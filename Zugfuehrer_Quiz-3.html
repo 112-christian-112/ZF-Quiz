@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
+<title>Zugführer Teil 1 – Quiz</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0e1117;color:#d6dce8;font-family:system-ui,-apple-system,sans-serif;min-height:100vh}
+#header{background:linear-gradient(135deg,#1a0a07,#0e1117);border-bottom:2px solid #e8391d;padding:12px 16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#header h1{font-weight:800;font-size:1.05rem;color:#fff;text-transform:uppercase;letter-spacing:.06em}
+#header h1 span{color:#e8391d}
+#scores{margin-left:auto;display:flex;gap:18px}
+.sc{text-align:center}
+.sv{font-weight:800;font-size:1.3rem}
+.sl{font-size:.62rem;color:#7a8599;text-transform:uppercase}
+#pbar-wrap{height:3px;background:#2a3347}
+#pbar{height:100%;background:linear-gradient(90deg,#e8391d,#f5a623);width:0%;transition:width .3s}
+#quiz{max-width:800px;margin:0 auto;padding:20px 12px 80px}
+.card{background:#161b27;border:1px solid #2a3347;border-radius:12px;margin-bottom:16px;overflow:hidden;transition:border-color .3s}
+.card.ok{border-color:#22c55e}
+.card.nok{border-color:#ef4444}
+.qhead{background:#1c2333;padding:12px 16px;border-bottom:1px solid #2a3347;display:flex;gap:8px;align-items:flex-start}
+.qn{font-weight:800;font-size:.68rem;color:#e8391d;text-transform:uppercase;letter-spacing:.1em;white-space:nowrap;margin-top:3px;flex-shrink:0}
+.qt{font-size:.91rem;line-height:1.6;color:#fff}
+.qimg{padding:8px 16px 0}
+.qimg svg{max-width:100%;height:auto;display:block;border-radius:6px}
+.opts{padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.opt{background:transparent;border:1px solid #2a3347;border-radius:8px;padding:10px 13px;color:#d6dce8;font-family:inherit;font-size:.87rem;text-align:left;cursor:pointer;display:flex;gap:8px;align-items:flex-start;width:100%;transition:background .15s,border-color .15s,color .15s;line-height:1.5}
+.opt:not([disabled]):hover{background:#2a3347;border-color:#f5a623;color:#fff}
+.opt[disabled]{cursor:default}
+.opt.correct{background:rgba(34,197,94,.15);border-color:#22c55e;color:#86efac}
+.opt.wrong{background:rgba(239,68,68,.15);border-color:#ef4444;color:#fca5a5}
+.opt.reveal{background:rgba(34,197,94,.07);border-color:rgba(34,197,94,.4);color:#86efac}
+.oi{flex-shrink:0;width:14px;font-weight:bold}
+.fb{padding:6px 12px 12px;font-size:.83rem;font-weight:700;display:none}
+.fb.show{display:block}
+.fb.ok{color:#22c55e}
+.fb.nok{color:#ef4444}
+#summary{background:#161b27;border:2px solid #e8391d;border-radius:14px;padding:28px;text-align:center;margin-top:20px;display:none}
+#summary h2{font-weight:800;font-size:1.5rem;color:#fff;text-transform:uppercase;letter-spacing:.08em}
+#sum-score{font-weight:800;font-size:3.2rem;margin:14px 0}
+#sum-sub{color:#7a8599;margin-bottom:20px}
+#restart{background:#e8391d;color:#fff;border:none;padding:10px 26px;border-radius:8px;font-weight:700;font-size:.92rem;text-transform:uppercase;letter-spacing:.08em;cursor:pointer}
+#restart:hover{background:#c22d15}
+</style>
+</head>
+<body>
+<div id="header">
+  <span style="font-size:1.5rem">&#x1F525;</span>
+  <h1>Zugf&uuml;hrer <span>Teil&nbsp;1</span> &ndash; Lernquiz</h1>
+  <div id="scores">
+    <div class="sc" id="sc-r"><div class="sv" style="color:#22c55e">0</div><div class="sl">Richtig</div></div>
+    <div class="sc" id="sc-w"><div class="sv" style="color:#ef4444">0</div><div class="sl">Falsch</div></div>
+    <div class="sc" id="sc-o"><div class="sv" style="color:#f5a623">0</div><div class="sl">Offen</div></div>
+  </div>
+</div>
+<div id="pbar-wrap"><div id="pbar"></div></div>
+<div id="quiz"></div>
+
+<script>
+var Q=[{"q": "Nach dem Auslösen einer Gas-Löschanlage mit dem Löschmittel CO2 ...", "opts": ["muss die Einsatzleiterin oder der Einsatzleiter der Feuerwehr den betroffenen Bereich sofort belüften lassen, da sich dort ggf. noch Personen aufhalten.", "dürfen Lüftungsmaßnahmen erst nach Kontrolle des betroffenen Bereiches eingeleitet werden, um Rückzündungen zu verhindern.", "ist die Aussicht auf Erfolg für die Rettung betroffener Personen als derart gering einzuschätzen, dass das Risiko eines Aufflammens oder einer Brandausbreitung als größte Gefahr anzusehen sind.", "ist die zuständige Umweltbehörde zu benachrichtigen."], "correct": 1}, {"q": "Markieren Sie die zutreffende Aussage! (FwDV 100 / Einsatzleitung)", "opts": ["Eine Einsatzleitung im Sinne der FwDV 100 besteht nur aus einer Person (der Einsatzleiterin oder dem Einsatzleiter). Die weitere Besatzung eines Führungsfahrzeuges gehört nicht zur Einsatzleitung.", "Einsatzleiterinnen und Einsatzleiter kleinerer Einheiten, z. B. eines oder zweier Fahrzeuge, führen ohne Führungseinheit. Größere Einheiten werden mit einer Führungseinheit geführt. Die kleinste Führungseinheit gemäß FwDV 100 besteht aus drei Funktionen.", "Einsatzleiterinnen und Einsatzleiter der Führungsstufen A und B führen ohne Führungseinheiten.", "Führungseinheiten werden nur bei zeitlich länger dauernden Einsätzen benötigt."], "correct": 1}, {"q": "Sie werden zu einem Verkehrsunfall alarmiert, der ABC-Zug ist ebenfalls auf Anfahrt. An der Einsatzstelle kommt der LKW-Fahrer auf Sie zu. Er erklärt, er hat größere Mengen Eisen-III-Chlorid Lösung geladen, die mit ca. 30 l/min aus dem Tank austreten. Es sind keine betroffenen Personen mehr im Gefahrenbereich. Für welche Maßnahme entscheiden Sie sich?", "opts": ["Trupp unter PA zur Erkundung der Leckage vorschicken.", "Trupp unter PA mit Schuttmulde zum Auffangen des Stoffes vorschicken.", "Gefahrenbereich absperren, Außerhalb des Gefahrenbereichs weiter erkunden, ABC-Zug einweisen.", "Meldung an Leitstelle und auf Eintreffen des ABC-Zug warten."], "correct": 2}, {"q": "In welche Gefahrengruppe werden Einsätze im Zusammenhang mit Transporten gefährlicher Güter laut FwDV 500 eingeordnet?", "opts": ["Gefahrengruppe I", "Gefahrengruppe II", "Gefahrengruppe III", "Gefahrengruppe IV"], "correct": 1}, {"q": "In der Feuerwehr wird eine neue Ausbilderin oder ein neuer Ausbilder gesucht, über welche Eigenschaften sollte eine gute Ausbilderin oder ein guter Ausbilder verfügen?", "opts": ["Amtskompetenz, Arbeitskompetenz", "Methodenkompetenz, Fachkompetenz", "Fahrkompetenz, Redekompetenz", "Lesekompetenz, Führungskompetenz"], "correct": 1}, {"q": "Mit welchem Fahrzeug mit Normbeladung können zur selben Zeit zwei Rufgruppen im Digitalfunk über MRT genutzt werden?", "opts": ["KdoW", "ELW1", "LF10", "TSF"], "correct": 1}, {"q": "Ab welcher Führungsstufe ist der Einsatz eines ELW 2 sinnvoll?", "opts": ["Führungsstufe A", "Führungsstufe B", "Führungsstufe C", "Führungsstufe D"], "correct": 2}, {"q": "Sie fahren mit Ihren unterstellten Einheiten zu einem Hochwassereinsatz nach Bayern. Wie kommunizieren Sie über Funk während der gesamten Fahrt mit Ihren Einheiten/Fahrzeugen?", "opts": ["In der Hauptrufgruppe des eigenen Landkreises.", "In der Rufgruppe \\u201eZusArb\\u201d des anfordernden Landkreises.", "In der Rufgruppe \\u201eMarschkanal\\u201d in der Betriebsart TMO.", "In der Rufgruppe \\u201eMarschkanal\\u201d in der Betriebsart DMO."], "correct": 3}, {"q": "Der Löschzug rückt während eines Unwetters nach einem Blitzeinschlag zu einem Brand in einem Wohnhaus aus. Nach dem Eintreffen und der Erkundung stellt der Zugführer fest, dass es sich bei dem Gebäude um ein Fertighaus in Holzrahmenbauart handelt. Flammen sind noch nicht zu sehen, aus verschiedenen Stellen des Hauses dringt leicht Rauch. Welche Taktik ist für die Brandbekämpfung anzuwenden?", "opts": ["Die raumabschließenden Bauteile sind gezielt zu öffnen, um eine gezielte Brandbekämpfung durchführen zu können.", "Ein Öffnen von Wänden und Decken ist aufgrund der Sauerstoffzufuhr und einer damit verbundenen Durchzündung zu vermeiden.", "Das Dach ist zu öffnen, um eine gezielte Brandbekämpfung durchführen zu können.", "Auf ein Öffnen von Wänden und Decken kann verzichtet werden, wenn eine Wärmebildkamera genutzt wird."], "correct": 0}, {"q": "Sie sind als Einsatzleiterin oder Einsatzleiter an einer Einsatzstelle tätig. Ihnen gefällt nicht, wie Ihre Gruppenführerinnen und Gruppenführer an der Umsetzung Ihrer Befehle arbeitet und Sie fürchten, dass Sie auf diese Weise nicht Ihr Einsatzziel erreichen. Wie gehen Sie damit um?", "opts": ["Sie entscheiden sich, das Ganze selber in die Hand zu nehmen und unterstützen tatkräftig Ihre untergeordneten Einsatzkräfte bei der Umsetzung der befohlenen Maßnahmen, um ihnen auch zu zeigen, wie Sie sich die Umsetzung gedacht haben.", "Sie sehen ein, dass Ihre Gruppenführerinnen und Gruppenführer nicht dazu in der Lage sind Ihre Befehle auszuführen und versuchen Ihre Zuständigkeit an jemand anderes abzutreten.", "Sie überdenken im Rahmen Ihres nächsten Durchganges des Führungsvorganges Ihre Maßnahmen und geben entsprechend angepasste Befehle, um die Tätigkeiten Ihrer Gruppenführerinnen und Gruppenführer in die richtige Richtung zu lenken.", "Sie lassen alles so weiterlaufen, wie es ist, da Ihre Gruppenführerinnen und Gruppenführer selber erkennen müssen, dass diese falsch handeln. Dabei lernen sie auch gleich aus ihren Fehlern."], "correct": 2}, {"q": "Sie wurden zu einem Industriebrand alarmiert. Nach einer ausführlichen Erkundung stehen Sie nun vor dem Halleneingang des Industriebetriebes und erkennen eine starke Rauchentwicklung im Deckenbereich der Halle in Stahlskelettbauweise. Welche Einrichtung des vorbeugenden Brandschutzes kann Ihre einsatztaktischen Maßnahmen positiv beeinflussen?", "opts": ["Das Auslösen einer Brandmeldeanlage während der Brandbekämpfung", "Die Inbetriebnahme von Rauch- und Wärmeabzügen", "Einleiten von Lüftungsmaßnahmen mit dem Lüfter des Löschfahrzeuges", "Eine umfangreiche Brandbekämpfung mit mehreren Rohren"], "correct": 1}, {"q": "Niedersächsische Kreisfeuerwehrbereitschaften sind ...", "opts": ["Verbände, die aus bis zu fünf Zügen bestehen, innerhalb von zwei Stunden abmarschbereit sein müssen und in der Lage sind, am Einsatzort mindestens vier Stunden autark zu arbeiten.", "Verbände, die aus bis zu fünf Zügen bestehen, sofort abmarschbereit sein müssen und in der Lage sind, am Einsatzort mindestens vier Stunden autark zu arbeiten.", "Verbände, die aus bis zu fünf Zügen bestehen, innerhalb von vier Stunden abmarschbereit sein müssen und in der Lage sind, am Einsatzort mindestens achtundvierzig Stunden autark, das heißt ohne eine Versorgung von außen, zu arbeiten.", "lose Zusammenschlüsse von Einzelfahrzeugen verschiedener Freiwilliger Feuerwehren, die innerhalb von zwei Stunden abmarschbereit sein müssen und in der Lage sind, am Einsatzort mindestens vierundzwanzig Stunden autark, das heißt ohne eine Versorgung von außen, zu arbeiten."], "correct": 0}, {"q": "Einsatzpläne ...", "opts": ["enthalten einsatztaktische Hinweise. Ihnen liegt immer ein Feuerwehrplan zugrunde.", "sind objekt- oder ereignisbezogene Pläne und enthalten einsatztaktische Hinweise.", "sind objekt- oder ereignisbezogene Pläne und können einsatztaktische Hinweise enthalten.", "enthalten einsatztaktische Hinweise. Sie beziehen sich lediglich auf Ereignisse, nicht auf bestimmte Objekte."], "correct": 1}, {"q": "Welche Zusammenstellung von Einsatzfahrzeugen ist für den Einsatz \\u201eBrand eines LKW\\u201d außerhalb geschlossener Ortschaften am sinnvollsten?", "opts": ["MTW, LF 20, TLF 2000", "TSF, TSF-W, TLF 2000", "LF 10, TLF 3000, TLF 4000", "ELW 1, HLF 20, TLF 2000, TLF 4000"], "correct": 3}, {"q": "Das Betroffene Objekt besteht aus drei durch Brandwände voneinander abgetrennte Lagerhallen. Die Halle II ist durch feuerbeständige Wände in einzelne Abschnitte unterteilt. Einer dieser Abschnitte steht in Vollbrand. Was bedeutet das für Ihre Einsatztaktik?", "opts": ["Eine Brandausbreitung auf andere Abschnitte ist auszuschließen.", "Eine Brandausbreitung auf andere Lagerhallen ist unwahrscheinlich.", "Eine Brandausbreitung auf andere Lagerhallen ist für 60 Minuten auszuschließen.", "Eine Brandausbreitung auf andere Abschnitte ist für 90 Minuten ausgeschlossen."], "correct": 3, "svg": "lagerhallen"}, {"q": "Die Genehmigung für eine Kolonnenfahrt ist zu beantragen ...", "opts": ["bei der Straßenverkehrsbehörde (z.B. Landkreis), in deren Zuständigkeitsbereich die Kolonnenfahrt beginnt.", "bei der FEL, in deren Zuständigkeitsbereich die Kolonnenfahrt beginnt.", "bei der Straßenverkehrsbehörde, in deren Zuständigkeitsbereich die Kolonnenfahrt führt.", "sofern die Einsatzfahrzeuge nicht entsprechend gekennzeichnet sind."], "correct": 0}, {"q": "Markieren Sie die zutreffende Aussage! (Führungsstufen)", "opts": ["Die Führungsstufe B beschreibt die Einsatzleitung mit Führungsstab.", "Die Führungsstufe C beschreibt die Einsatzleitung mit Führungsgruppe.", "Die Führungsstufe C beschreibt die Einsatzleitung mit einem Führungsassistenten.", "Die Führungsstufe B beschreibt die Einsatzleitung ohne Führungseinheit."], "correct": 1}, {"q": "Ein Löschfahrzeug rückt zu einem Containerbrand aus. Der Container, etwa 5 m³, steht im Abstand von etwa zwei Metern vor einem Wohnhaus (drei Obergeschosse und Dachstuhl mit Satteldach) und brennt in voller Ausdehnung, Teile der Fassade bis zum 3. Obergeschoss brennen ebenfalls. Was könnte die Ursache sein? Welche Gefahren sind erkannt?", "opts": ["Es brennt ein Wärmedämmverbundsystem aus Polystyrol. Mit einer weiteren Ausbreitung des Brandes auch in das Dach und in die Wohnungen ist zu rechnen. Damit besteht eine Gefahr der Ausbreitung für die Bewohner des Hauses.", "Es handelt sich um eine brennbare Fassade mit normaler Brandausbreitung. Die Bewohner des Hauses sind bei geschlossenen Fenstern außer Gefahr. Der Dachstuhl ist gegen eine Ausbreitung des Brandes durch feuerhemmende Schicht geschützt.", "Es handelt sich um eine brennbare Fassade mit normaler Brandausbreitung. Die Bewohner des Hauses sind bei geöffneten Fenstern in Gefahr. Durch senkrechte Streifen aus nichtbrennbaren Baustoffen besteht keine Gefahr der weiteren Ausbreitung des Brandes nach links und rechts.", "Hinter der Fassade gibt es eine Schicht aus nichtbrennbaren Baustoffen, die den Brand aufhalten soll. Eine Gefahr der Ausbreitung in das Dach besteht nicht. Die Bewohner des Hauses sind bei geschlossenen Fenstern außer Gefahr."], "correct": 0}, {"q": "Räumlich ausgedehnte Einsatzstellen sind ...", "opts": ["grundsätzlich von außen nach innen bzw. von vorn nach hinten abzuarbeiten.", "meistens durch einen einberufenen Führungsstab HVB zu führen.", "in der Regel in Abschnitte zu unterteilen.", "grundsätzlich mit dem KdoW zu erkunden."], "correct": 2}, {"q": "Eine Einsatzleiterin oder ein Einsatzleiter der Feuerwehr ist gegenüber allen bei der Gefahrenabwehr beteiligten Stellen ...", "opts": ["weisungsbefugt, auch in deren interne Zuständigkeiten.", "koordinierend tätig.", "nur bei gegenwärtiger Gefahr weisungsbefugt.", "jederzeit Rechenschaft schuldig."], "correct": 1}, {"q": "Im Einsatzdienst mit Ihrer Feuerwehr, in welcher Sie als Führungskraft tätig sind, ist Ihnen aufgefallen, dass einige Kameraden und Kameradinnen in belastenden Einsatzsituationen eine besonders \\u201eharte Schale\\u201d mimen und die Situationen im Nachgang häufig übertrieben verharmlosen. Sie befürchten, dass dieses Verhalten nicht der wirklichen Verfassung der Kameradinnen und Kameraden entspricht, und sie dieses nur tun, um nicht als \\u201eSchwächling\\u201d abgestempelt zu werden. Wie können Sie mit dieser Situation umgehen?", "opts": ["Sie erklären Ihren Kameradinnen und Kameraden, dass ihr Verhalten überhaupt nicht zu ihrer inneren Verfassung passen kann und suchen Hilfe bei einem Psychotherapeuten für die Betroffenen.", "Sie integrieren die Thematik \\u201ePsychosoziale Herausforderungen im Feuerwehrdienst\\u201d in der Ausbildung im Rahmen des normalen Einsatzdienstes, um langfristig das Thema innerhalb Ihrer Feuerwehr zu enttabuisieren.", "Sie unternehmen nichts, da es sich hier um ein sensibles Thema handelt und sich Ihre Kameradinnen und Kameraden angegriffen fühlen könnten, wenn Sie ihr Verhalten auf irgendeine Weise thematisieren.", "Sie schicken die entsprechenden Kameradinnen und Kameraden in besonders belastenden Situationen bevorzugt in den Einsatz, damit sie selber den nötigen Respekt vor belastenden Situationen entwickeln."], "correct": 1}, {"q": "Welche Aussage über TUIS ist richtig?", "opts": ["TUIS wird über die Leitstelle in Anspruch genommen. Die erste Stufe bedeutet: Personelle Unterstützung.", "TUIS wird über die Leitstelle in Anspruch genommen. Die erste Stufe bedeutet: Materielle Unterstützung.", "TUIS wird über die Leitstelle in Anspruch genommen. Die erste Stufe bedeutet: Personelle und materielle Unterstützung.", "TUIS wird über die Leitstelle in Anspruch genommen. Die erste Stufe bedeutet telefonische Unterstützung."], "correct": 3}, {"q": "Welche Befugnisse des Einsatzleitenden können ein Grundrecht einschränken?", "opts": ["Sicherungsmaßnahmen treffen", "Grundstücke und Gebäude zur Brandbekämpfung oder zur Hilfeleistung betreten", "Personen zur Hilfe verpflichten", "alle genannten Antwortmöglichkeiten"], "correct": 3}, {"q": "Was bedeutet Führen?", "opts": ["Führen ist die Einflussnahme auf das Verhalten anderer Menschen, um ein gesetztes Ziel zu erreichen.", "Führen bedeutet die Übernahme des Denkens für alle untergeordneten Personen.", "Führen bedeutet, dass alle Beteiligten sich bedingungslos nach den Ansagen einer einzelnen Person zu richten haben.", "Führen ist eine Art des dominanten zwischenmenschlichen Verhaltens, welches im allgemeinen Miteinander zu vermeiden ist, um die Atmosphäre einer sozialen Gruppierung nicht zu beeinträchtigen."], "correct": 0}, {"q": "Die Ortsfeuerwehr A einer Gemeinde (Grundausstattung) verfügt in einem neuen Feuerwehrhaus (zwei Stellplätze, maximale Größe) über ein altes und reparaturanfälliges TSF-W mit 750 Litern Löschwasser und einen MTW. Die umliegenden Feuerwehren, deren Standorte bis zu 10 km entfernt sind, verfügen nur über TSF oder TSF-W. Kennzeichnend für den Ausrückebereich der Ortsfeuerwehr A sind viele Wald-, Moor- und Heideflächen und eine unzureichende Löschwasserversorgung mit überdurchschnittlichen Entfernungen auch im bebauten Gebiet. Welcher Vorschlag erscheint Ihnen nach den vorliegenden Informationen aus Feuerwehrsicht am sinnvollsten?", "opts": ["TSF-W", "MLF", "LF 20 KatS", "LF 10"], "correct": 2}, {"q": "Führungsfortbildung für Führerinnen und Führer taktischer Einheiten ...", "opts": ["ist lediglich Aufgabe des Landes.", "ist lediglich Aufgabe der Kreise und des Landes.", "ist auch Aufgabe der Feuerwehren auf Gemeindeebene.", "ist auf Ortsfeuerwehrebene entbehrlich, wenn das Einsatzgeschehen hoch ist."], "correct": 2}, {"q": "Welche Rahmenbedingung muss bei dem Einsatz des Wenderohres einer Drehleiter beachtet werden?", "opts": ["Die Drehleiter arbeitet autark und bindet nur einen Trupp.", "Die Drehleiter benötigt eine leistungsfähige Löschwasserversorgung.", "Beim Wenderohreinsatz ist der Leiterpark mit den Sturmleinen zu sichern.", "Die Drehleiter muss bei Situationsänderung flexibel umgesetzt werden können."], "correct": 1}, {"q": "Wer leitet zentral die Katastrophenbekämpfung gemäß NKatSG?", "opts": ["Die technische Einsatzleiterin oder der technische Einsatzleiter der Katastrophenschutzbehörde", "Die Kreisbrandmeisterin oder der Kreisbrandmeister der Katastrophenschutzbehörde", "Der Katastrophenschutzstab der Katastrophenschutzbehörde", "Die Hauptverwaltungsbeamtin oder der Hauptverwaltungsbeamte der Katastrophenschutzbehörde"], "correct": 3}, {"q": "Während der Erkundung des Zugführers sind die Anzeichen für einen möglichen Einsturz von großer Bedeutung für die Lagebeurteilung. Was deutet auf einen drohenden Einsturz des Gebäudes hin?", "opts": ["Farbänderungen, raue Oberflächenbeschaffenheit, komplett offenstehende Fenster und Türen", "große Risse, Abplatzungen, Lageänderungen von Bauteilen, Knacken und andere Geräusche", "vor dem Haus liegende Dachziegel, umgestürzter Gartenzaun, kleine Löcher in der Erde", "einzeln hervorstehende Bewehrung aus Beton, nicht vollständig verfugtes Mauerwerk"], "correct": 1}, {"q": "Sie sind als Zugführerin oder Zugführer mit Ihrer Freiwilligen Feuerwehr zu einem Brandereignis (5. OG eines Gebäudes mit 6 OG, keine Verrauchung des Flures an der Brandwohnung) in einem Objekt alarmiert worden, welches gemäß Ihres Feuerwehrplans über eine Löschwasseranlage nass mit Wandhydranten in jedem Geschoss verfügt. Welche Variante ist die sinnvollste und schnellste für den Gruppenführer, um Ihren Auftrag zur Brandbekämpfung fachgerecht umzusetzen?", "opts": ["Er befiehlt dem vorgehenden Trupp die Schlauchleitung durch den Treppenraum und Flur zu legen und dann eine Brandbekämpfung über das erste Rohr in der Brandwohnung durchzuführen.", "Er befiehlt dem vorgehenden Trupp mit Schlauchtragekorb und Strahlrohr in die Etage mit dem Brandraum vorzugehen, den Schlauch am Wandhydranten Typ S anzuschließen und anschließend eine Brandbekämpfung durchzuführen.", "Er befiehlt dem vorgehenden Trupp ohne Schlauchtragekorb und Strahlrohr zur Brandbekämpfung mit Inbetriebnahme des Wandhydranten Typ S in der Etage mit dem Brandraum vorzugehen.", "Er befiehlt dem vorgehenden Trupp mit Schlauchtragekorb und Strahlrohr vorzugehen, den Schlauch an den Wandhydranten Typ F anzuschließen und von dort eine Brandbekämpfung in der Brandwohnung vorzunehmen."], "correct": 3}, {"q": "Warum darf die Feuerwehr auf die Befugnisse nach NPOG zurückgreifen?", "opts": ["Weil es die Gleichen sind wie im Brandschutzgesetz.", "Nur wenn es sich um eine Unterstützung der Polizei handelt.", "Nur wenn es sich um eine Amtshilfe für die Polizei handelt.", "Weil die Feuerwehr Teil der Verwaltungsbehörde ist."], "correct": 3}, {"q": "Bei einer Alarmierung auf der Grundlage einer Alarm- und Ausrückeordnung ...", "opts": ["können bei einer Häufung von Fehlalarmen einer BMA auf Anordnung der höchsten Führungskraft auch weniger Fahrzeuge ausrücken, um erst vor Ort zu sehen, ob es sich um ein bestätigtes Feuer handelt.", "rücken immer so viele Fahrzeuge eines Feuerwehrstandortes aus, wie möglich.", "rücken zunächst nur die Fahrzeuge aus, die zu dem betreffenden Alarmstichwort vorgesehen sind.", "rücken immer alle Fahrzeuge eines Feuerwehrstandortes aus, es sei denn, die höchste Führungskraft ordnet an, dass bestimmte Fahrzeuge zunächst nicht mit ausrücken sollen."], "correct": 2}, {"q": "Bei einer Förderstrecke (Leistung 800-900 L/min), für die auf den ersten einhundert Metern eine Höhe von ca. 20 Metern zu bewältigen ist, muss die erste Verstärkerpumpe nach ca. ...", "opts": ["200 Metern aufgestellt werden.", "400 Metern aufgestellt werden.", "600 Metern aufgestellt werden.", "800 Metern aufgestellt werden."], "correct": 1}, {"q": "Ein Zug, bestehend aus einem Gerätewagen Logistik 2 mit dem Ausrüstungsmodul \\u201eWasserversorgung\\u201d (Nachfolger SW2000) und zwei LF 20, ist in der Lage ...", "opts": ["1600 Liter Wasser pro Minute auf eine Distanz von über 1000 Metern in der Ebene zu fördern.", "1600 Liter Wasser pro Minute auf eine Distanz von über 2000 Metern in der Ebene zu fördern.", "2400 Liter Wasser pro Minute auf eine Distanz von über 1000 Metern in der Ebene zu fördern.", "2400 Liter Wasser pro Minute auf eine Distanz von über 2000 Metern in der Ebene zu fördern."], "correct": 0}, {"q": "In Ihrem Nachbarlandkreis ist es zu einem ausgedehnten Vegetationsbrand gekommen. Mittlerweile stehen etwa 12 ha Gras- und Heideflächen und 9 ha junger Kiefernwald in Flammen. Sie sind mit Ihrem Wassertransportzug Ihrer Kreisfeuerwehrbereitschaft zur Unterstützung zur Nachbarschaftshilfe entsandt worden. Welche Aussage zum Einsatz ist richtig?", "opts": ["Ich fahre die Einsatzstelle möglichst direkt an und melde mich bei dem zuständigen Ortsbrandmeister.", "Ich fahre die Einsatzstelle direkt an und gliedere mich in den Einsatzabschnitt, der sich um die Brandbekämpfung kümmert, ein.", "Ich muss als Zugführerin oder Zugführer sicherstellen, dass mein Zug für 4 Stunden autark arbeiten kann.", "Ich erweite, wegen des massiven Borkenkäferbefalls, den Wassertransportzug um einen RW1."], "correct": 2}, {"q": "Sie wollen veranlassen, dass sofort eine Person vom einzigen Balkon des Gebäudes gerettet wird. Welcher Befehl ist hier fachlich richtig?", "opts": ["\\u201eDrehleiter zur Anleiterbereitschaft am Balkon vor.\\u201d", "\\u201eDrehleiter zur Anleiterbereitschaft am Balkon und Personenrettung vor.\\u201d", "\\u201eGruppenführer Drehleiter zur Anleiterbereitschaft am Balkon und Personenrettung vor.\\u201d", "\\u201eDrehleiter zur Rettung der Person an den Balkon vor.\\u201d"], "correct": 3}, {"q": "\\u201eEntzündend\\u201d (oxidierend) wirkende Stoffe können bei Transporten wie folgt gekennzeichnet sein (a = orangefarbene Kennzeichnungstafel X 4**, b = orangefarbene Tafel 539, c = Gefahrzettel 5.1, d = roter Flammenraute):", "opts": ["a + d", "a + b", "b + c", "c + d"], "correct": 2, "svg": "gefahrgut"}, {"q": "Die Auftragstaktik im Sinne der FwDV 100 anzuwenden heißt, dass die Führungskraft ...", "opts": ["ihre Aufträge an Nachgeordnete eindeutig formuliert und die genauen Wege zur Erreichung der Ziele festlegt.", "ihre Aufträge an Nachgeordnete auf eindeutige Formulierungen der Ziele beschränken kann und verschiedene Wege zur Erreichung der Ziele offenlässt.", "die Ziele ihrer Aufträge an Nachgeordnete offenlässt und große Spielräume zur Erreichung der Ziele gewährt.", "die Ziele ihrer Aufträge an Nachgeordnete weitgehend offenlässt, jedoch die Einzelheiten zur Erreichung der Ziele festlegt."], "correct": 1}, {"q": "Erfolgreich führt die Führungskraft der Feuerwehr, die ...", "opts": ["sich ausschließlich auf den kooperativen Führungsstil stützt.", "sich ausschließlich auf den autoritären Führungsstil stützt.", "beide Führungsstile beherrscht und in jeder Situation den richtigen anzuwenden weiß.", "im Einsatz immer die Mannschaft in ihre Entscheidungsfindung mit einbindet."], "correct": 2}, {"q": "Sie sind Zugführerin oder Zugführer in einer Schwerpunktfeuerwehr und rücken mit dem ersten Löschzug (gemäß AAO) zu einem Zimmerbrand aus. Beim Eintreffen schlagen bereits Flammen aus einem Fenster im ersten Obergeschoss. Sie erkunden die Lage und leiten erste Maßnahmen als Einsatzleiterin oder Einsatzleiter ein. Nach kurzer Zeit trifft die Ortsbrandmeisterin (OrtsBMin) ein. Wie erfolgt die Übergabe der Einsatzleitung?", "opts": ["Ich melde der Leitstelle, dass die OrtsBMin die Einsatzstelle übernimmt und weise sie anschließend in die Lage ein. Alle folgenden Lagemeldungen meiner Gruppenführer gebe ich an die OrtsBMin.", "Ich weise die OrtsBMin in die Lage ein. Die Übernahme der Einsatzstelle erfolgt automatisch nach Satzung der Gemeinde. Alle folgenden Lagemeldungen meiner Gruppenführer gebe ich an die OrtsBMin.", "Ich informiere meine Gruppenführer, dass die OrtsBMin eingetroffen ist, weise die OrtsBMin in die Lage ein und melde der Leitstelle, dass die OrtsBMin die Einsatzstelle übernommen hat. Alle folgenden Lagemeldungen meiner Gruppenführer gebe ich an die Leitstelle.", "Ich weise die OrtsBMin in die Lage ein und übergebe ihr die Einsatzleitung. Anschließend wird die Übernahme der Einsatzleitung dokumentiert."], "correct": 3}];
+
+var A=[];
+for(var i=0;i<Q.length;i++) A.push(null);
+
+var SVGS={
+  lagerhallen: '<svg viewBox="0 0 500 155" style="max-width:100%;background:#fff;border-radius:6px;display:block"><text x="90" y="16" text-anchor="middle" font-size="12" font-family="sans-serif" fill="#222">Halle I</text><text x="250" y="16" text-anchor="middle" font-size="12" font-family="sans-serif" fill="#222">Halle II</text><text x="420" y="16" text-anchor="middle" font-size="12" font-family="sans-serif" fill="#222">Halle III</text><rect x="20" y="22" width="140" height="110" fill="#dbeafe" stroke="#666" stroke-width="1.5"/><rect x="340" y="22" width="140" height="110" fill="#dbeafe" stroke="#666" stroke-width="1.5"/><rect x="160" y="22" width="180" height="110" fill="#dbeafe" stroke="#666" stroke-width="1.5"/><rect x="155" y="22" width="10" height="110" fill="#dc2626"/><rect x="335" y="22" width="10" height="110" fill="#dc2626"/><text x="160" y="80" text-anchor="middle" font-size="9" font-family="sans-serif" fill="#fff" transform="rotate(-90 160 80)">Brandwand</text><text x="340" y="80" text-anchor="middle" font-size="9" font-family="sans-serif" fill="#fff" transform="rotate(-90 340 80)">Brandwand</text><line x1="200" y1="22" x2="200" y2="132" stroke="#2563eb" stroke-width="2" stroke-dasharray="5,3"/><line x1="240" y1="22" x2="240" y2="132" stroke="#2563eb" stroke-width="2" stroke-dasharray="5,3"/><line x1="280" y1="22" x2="280" y2="132" stroke="#2563eb" stroke-width="2" stroke-dasharray="5,3"/><line x1="320" y1="22" x2="320" y2="132" stroke="#2563eb" stroke-width="2" stroke-dasharray="5,3"/><text x="270" y="72" text-anchor="middle" font-size="9" font-family="sans-serif" fill="#1d4ed8">Innenwande: feuerbest. Wande</text><text x="213" y="92" text-anchor="middle" font-size="30">&#x1F525;</text></svg>',
+  gefahrgut: '<svg viewBox="0 0 460 130" style="max-width:100%;background:#f5f5f5;border-radius:6px;display:block"><rect x="15" y="15" width="88" height="68" fill="#f97316" stroke="#333" stroke-width="2" rx="2"/><line x1="15" y1="49" x2="103" y2="49" stroke="#333" stroke-width="1.5"/><text x="59" y="38" text-anchor="middle" font-size="13" font-weight="bold" font-family="monospace" fill="#000">X 4**</text><text x="59" y="66" text-anchor="middle" font-size="11" font-family="monospace" fill="#000">* * * *</text><text x="59" y="100" text-anchor="middle" font-size="13" fill="#333">a)</text><rect x="125" y="15" width="88" height="68" fill="#f97316" stroke="#333" stroke-width="2" rx="2"/><line x1="125" y1="49" x2="213" y2="49" stroke="#333" stroke-width="1.5"/><text x="169" y="38" text-anchor="middle" font-size="13" font-weight="bold" font-family="monospace" fill="#000">5 3 9</text><text x="169" y="66" text-anchor="middle" font-size="11" font-family="monospace" fill="#000">* * * *</text><text x="169" y="100" text-anchor="middle" font-size="13" fill="#333">b)</text><g transform="translate(279,49) rotate(45)"><rect x="-34" y="-34" width="68" height="68" fill="#fde047" stroke="#333" stroke-width="2"/></g><text x="279" y="40" text-anchor="middle" font-size="18">&#x1F525;</text><text x="279" y="66" text-anchor="middle" font-size="11" font-weight="bold" fill="#333">5.1</text><text x="279" y="100" text-anchor="middle" font-size="13" fill="#333">c)</text><g transform="translate(389,49) rotate(45)"><rect x="-34" y="-34" width="68" height="68" fill="#dc2626" stroke="#333" stroke-width="2"/></g><text x="389" y="42" text-anchor="middle" font-size="20" fill="#fff">&#x1F525;</text><text x="389" y="100" text-anchor="middle" font-size="13" fill="#333">d)</text></svg>'
+};
+
+function esc(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function build(){
+  var c=document.getElementById('quiz');
+  c.innerHTML='';
+  document.querySelector('#sc-o .sv').textContent=Q.length;
+
+  for(var qi=0;qi<Q.length;qi++){
+    (function(qi){
+      var q=Q[qi];
+      var card=document.createElement('div');
+      card.className='card';
+      card.id='card'+qi;
+
+      var qhead=document.createElement('div');
+      qhead.className='qhead';
+      qhead.innerHTML='<span class="qn">F '+(qi+1)+'</span><span class="qt">'+esc(q.q)+'</span>';
+      card.appendChild(qhead);
+
+      if(q.svg && SVGS[q.svg]){
+        var imgd=document.createElement('div');
+        imgd.className='qimg';
+        imgd.innerHTML=SVGS[q.svg];
+        card.appendChild(imgd);
+      }
+
+      var opts=document.createElement('div');
+      opts.className='opts';
+      for(var oi=0;oi<q.opts.length;oi++){
+        (function(oi){
+          var btn=document.createElement('button');
+          btn.className='opt';
+          btn.innerHTML='<span class="oi">&#9675;</span><span>'+esc(q.opts[oi])+'</span>';
+          btn.addEventListener('click',function(){answer(qi,oi);});
+          opts.appendChild(btn);
+        })(oi);
+      }
+      card.appendChild(opts);
+
+      var fb=document.createElement('div');
+      fb.className='fb';
+      fb.id='fb'+qi;
+      card.appendChild(fb);
+
+      c.appendChild(card);
+    })(qi);
+  }
+
+  var sum=document.getElementById('summary');
+  if(sum) sum.style.display='none';
+}
+
+function answer(qi,oi){
+  if(A[qi]!==null) return;
+  A[qi]=oi;
+  var q=Q[qi];
+  var card=document.getElementById('card'+qi);
+  var btns=card.querySelectorAll('.opt');
+  var fb=document.getElementById('fb'+qi);
+
+  for(var i=0;i<btns.length;i++){
+    btns[i].disabled=true;
+    var ic=btns[i].querySelector('.oi');
+    if(i===q.correct && i===oi){btns[i].classList.add('correct');ic.textContent='✓';}
+    else if(i===oi){btns[i].classList.add('wrong');ic.textContent='✗';}
+    else if(i===q.correct){btns[i].classList.add('reveal');ic.textContent='✓';}
+  }
+
+  if(oi===q.correct){
+    card.classList.add('ok');
+    fb.textContent='✓ Richtig!';
+    fb.className='fb show ok';
+  } else {
+    card.classList.add('nok');
+    fb.textContent='✗ Falsch – die richtige Antwort ist grün markiert.';
+    fb.className='fb show nok';
+  }
+
+  updateScore();
+  var allDone=true;
+  for(var i=0;i<A.length;i++){if(A[i]===null){allDone=false;break;}}
+  if(allDone) setTimeout(showSummary,500);
+}
+
+function updateScore(){
+  var r=0,w=0,o=0;
+  for(var i=0;i<A.length;i++){
+    if(A[i]===null) o++;
+    else if(A[i]===Q[i].correct) r++;
+    else w++;
+  }
+  document.querySelector('#sc-r .sv').textContent=r;
+  document.querySelector('#sc-w .sv').textContent=w;
+  document.querySelector('#sc-o .sv').textContent=o;
+  document.getElementById('pbar').style.width=((Q.length-o)/Q.length*100)+'%';
+}
+
+function showSummary(){
+  var r=0;
+  for(var i=0;i<A.length;i++){if(A[i]===Q[i].correct) r++;}
+  var pct=Math.round(r/Q.length*100);
+  var col=pct>=75?'#22c55e':pct>=50?'#f5a623':'#ef4444';
+  var msg=pct>=75?'&#x1F389; Sehr gut!':pct>=50?'&#x1F4DA; Weiter üben!':'&#x1F504; Nochmals versuchen!';
+
+  var sum=document.getElementById('summary');
+  if(!sum){
+    sum=document.createElement('div');
+    sum.id='summary';
+    document.getElementById('quiz').appendChild(sum);
+  }
+  sum.innerHTML='<h2>Auswertung</h2>'
+    +'<div id="sum-score" style="color:'+col+'">'+r+' / '+Q.length+'</div>'
+    +'<div id="sum-sub">'+pct+'% richtig &nbsp;&middot;&nbsp; '+msg+'</div>'
+    +'<button id="restart" onclick="restart()">&#x1F504; Nochmals starten</button>';
+  sum.style.display='block';
+  sum.scrollIntoView({behavior:'smooth'});
+}
+
+function restart(){
+  for(var i=0;i<A.length;i++) A[i]=null;
+  build();
+  updateScore();
+  window.scrollTo(0,0);
+}
+
+build();
+updateScore();
+</script>
+</body>
+</html>
